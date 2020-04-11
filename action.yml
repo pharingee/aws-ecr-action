@@ -1,5 +1,5 @@
 name: AWS ECR
-author: Lee Sun-Hyoup <kciter@naver.com>
+author: Lee Sun-Hyoup <kciter@naver.com>, Gerald Pharin <gerald@pharin.me>
 branding:
   icon: upload-cloud
   color: orange
@@ -27,6 +27,9 @@ inputs:
   create_repo:
     description: Set this to true to create the repository if it does not already exist
     default: false
+  version_file:
+    description: The location of the version info for the image
+    required: true
   tags:
     description: Comma-separated string of ECR image tags
     default: latest
