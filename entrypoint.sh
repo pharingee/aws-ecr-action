@@ -7,13 +7,11 @@ function main() {
   sanitize "${INPUT_REGION}" "region"
   sanitize "${INPUT_ACCOUNT_ID}" "account_id"
   sanitize "${INPUT_REPO}" "repo"
-  sanitize "${INPUT_ASSUME_ROLE}" "assume_role"
   sanitize "${INPUT_VERSION_FILE}" "version_file"
 
   ACCOUNT_URL="$INPUT_ACCOUNT_ID.dkr.ecr.$INPUT_REGION.amazonaws.com"
 
   aws_configure
-  assume_role
   login
   get_image_version
   docker_build $INPUT_TAGS $ACCOUNT_URL
@@ -46,19 +44,6 @@ function login() {
   LOGIN_COMMAND=$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
   $LOGIN_COMMAND
   echo "== FINISHED LOGIN"
-}
-
-function assume_role() {
-  if [ "${INPUT_ASSUME_ROLE}" != "" ]; then
-    echo "== START ASSUME ROLE"
-    ROLE="arn:aws:iam::${INPUT_ACCOUNT_ID}:role/${INPUT_ASSUME_ROLE}"
-    CREDENTIALS=$(aws sts assume-role --role-arn ${ROLE} --role-session-name ecrpush --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
-    read id key token <<< ${CREDENTIALS}
-    export AWS_ACCESS_KEY_ID="${id}"
-    export AWS_SECRET_ACCESS_KEY="${key}"
-    export AWS_SESSION_TOKEN="${token}"
-    echo "== FINISHED ASSUME ROLE"
-  fi
 }
 
 function create_ecr_repo() {
