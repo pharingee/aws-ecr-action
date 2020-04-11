@@ -8,12 +8,14 @@ function main() {
   sanitize "${INPUT_ACCOUNT_ID}" "account_id"
   sanitize "${INPUT_REPO}" "repo"
   sanitize "${INPUT_ASSUME_ROLE}" "assume_role"
+  sanitize "${INPUT_VERSION_FILE}" "version_file"
 
   ACCOUNT_URL="$INPUT_ACCOUNT_ID.dkr.ecr.$INPUT_REGION.amazonaws.com"
 
   aws_configure
   assume_role
   login
+  get_image_version
   docker_build $INPUT_TAGS $ACCOUNT_URL
   create_ecr_repo $INPUT_CREATE_REPO
   docker_push_to_ecr $INPUT_TAGS $ACCOUNT_URL
@@ -24,6 +26,10 @@ function sanitize() {
     >&2 echo "Unable to find the ${2}. Did you set with.${2}?"
     exit 1
   fi
+}
+
+function get_image_version() {
+  IMAGE_VERSION="sed -En 's/.*([0-9]+\.)([0-9]+\.)([0-9]+).*/\1\2\3/p' $INPUT_VERSION_FILE | head -n 1"
 }
 
 function aws_configure() {
@@ -63,7 +69,7 @@ function create_ecr_repo() {
 
 function docker_build() {
   echo "== START DOCKERIZE"
-  local TAG=$1
+  local TAG=$1,$IMAGE_VERSION
   local docker_tag_args=""
   local DOCKER_TAGS=$(echo "$TAG" | tr "," "\n")
   for tag in $DOCKER_TAGS; do
@@ -76,7 +82,7 @@ function docker_build() {
 
 function docker_push_to_ecr() {
   echo "== START PUSH TO ECR"
-  local TAG=$1
+  local TAG=$1,$IMAGE_VERSION
   local DOCKER_TAGS=$(echo "$TAG" | tr "," "\n")
   for tag in $DOCKER_TAGS; do
     docker push $2/$INPUT_REPO:$tag
