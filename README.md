@@ -11,6 +11,7 @@ This Action allows you to create Docker images and push into a ECR repository.
 | `repo` | `string` | | Name of your ECR repository |
 | `region` | `string` | | Your AWS region |
 | `create_repo` | `boolean` | `false` | Set this to true to create the repository if it does not already exist |
+| `version_file` | `string` | | The file where your version information is located |
 | `tags` | `string` | `latest` | Comma-separated string of ECR image tags (ex latest,1.0.0,) |
 | `dockerfile` | `string` | `Dockerfile` | Name of Dockerfile to use |
 | `extra_build_args` | `string` | `""` | Extra flags to pass to docker build (see docs.docker.com/engine/reference/commandline/build) |
@@ -31,6 +32,7 @@ jobs:
         region: ap-northeast-2
         tags: latest,${{ github.sha }}
         create_repo: true
+        version_file: package.json
 ```
 
 ## Reference
