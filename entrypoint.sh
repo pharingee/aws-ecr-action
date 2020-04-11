@@ -28,7 +28,7 @@ function sanitize() {
 
 function get_image_version() {
   echo "== SETTING VERSION"
-  IMAGE_VERSION="sed -En 's/.*([0-9]+\.)([0-9]+\.)([0-9]+).*/\1\2\3/p' $INPUT_VERSION_FILE | head -n 1"
+  IMAGE_VERSION=$(sed -En 's/.*([0-9]+\.)([0-9]+\.)([0-9]+).*/\1\2\3/p' $INPUT_VERSION_FILE | head -n 1)
   echo "Version is $IMAGE_VERSION"
   echo "== FINISHED VERSIONING"
 }
