@@ -14,6 +14,7 @@ function main() {
   aws_configure
   login
   get_image_version
+  docker_pull_from_ecr $ACCOUNT_URL
   docker_build $INPUT_TAGS $ACCOUNT_URL
   create_ecr_repo $INPUT_CREATE_REPO
   docker_push_to_ecr $INPUT_TAGS $ACCOUNT_URL
@@ -55,6 +56,12 @@ function create_ecr_repo() {
   fi
 }
 
+function docker_pull_from_ecr() {
+  echo "== START PULL FROM ECR"
+  docker pull $1/$INPUT_REPO:latest || true
+  echo "== FINISHED PULL"
+}
+
 function docker_build() {
   echo "== START DOCKERIZE"
   local TAG=$1,$IMAGE_VERSION
@@ -64,7 +71,7 @@ function docker_build() {
     docker_tag_args="$docker_tag_args -t $2/$INPUT_REPO:$tag"
   done
 
-  docker build $INPUT_EXTRA_BUILD_ARGS -f $INPUT_DOCKERFILE $docker_tag_args $INPUT_PATH
+  docker build --cache-from $2/$INPUT_REPO:latest $INPUT_EXTRA_BUILD_ARGS -f $INPUT_DOCKERFILE $docker_tag_args $INPUT_PATH
   echo "== FINISHED DOCKERIZE"
 }
 
